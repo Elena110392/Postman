@@ -8,6 +8,19 @@
 	"item": [
 		{
 			"name": "User list (no auth)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -32,6 +45,20 @@
 		},
 		{
 			"name": "User list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -53,6 +80,22 @@
 		},
 		{
 			"name": "Pagination",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(700);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -84,17 +127,47 @@
 		},
 		{
 			"name": "Create user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"email\",jsonData.email);\r",
+							"pm.environment.set(\"userid\",jsonData.id)\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"id\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\"firstName\": \"Alena\",\r\n\"lastName\": \"Ivanova\",\r\n\"email\": \"elkau.e@list.ru\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "email",
+							"value": "{{$randomEmail}}",
+							"type": "text"
+						},
+						{
+							"key": "lastName",
+							"value": "{{$randomLastName}}",
+							"type": "text"
+						},
+						{
+							"key": "firstName",
+							"value": "{{$randomFirstName}}",
+							"type": "text"
 						}
-					}
+					]
 				},
 				"url": {
 					"raw": "https://dummyapi.io/data/v1/user/create",
@@ -115,6 +188,19 @@
 		},
 		{
 			"name": "Update user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -128,7 +214,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/user/:id",
+					"raw": "https://dummyapi.io/data/v1/user/{{userid}}",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -138,13 +224,7 @@
 						"data",
 						"v1",
 						"user",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id",
-							"value": "63590fef3ffeb483f34a81a3"
-						}
+						"{{userid}}"
 					]
 				}
 			},
@@ -168,7 +248,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/user/:id",
+					"raw": "https://dummyapi.io/data/v1/user/{{userid}}",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -178,13 +258,7 @@
 						"data",
 						"v1",
 						"user",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id",
-							"value": "63590fef3ffeb483f34a81a3"
-						}
+						"{{userid}}"
 					]
 				}
 			},
@@ -192,12 +266,30 @@
 		},
 		{
 			"name": "Create post",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"postID\",jsonData.id)\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"text\": \"text\",\r\n\"image\": \"https://randomuser.me/api/portraits/med/women/89.jpg\",\r\n\"likes\": 777,\r\n\"tags\": \"iliketesting\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\"\r\n}",
+					"raw": "{\r\n\"text\": \"text\",\r\n\"image\": \"https://randomuser.me/api/portraits/med/women/89.jpg\",\r\n\"likes\": 777,\r\n\"tags\": \"iliketesting\",\r\n\"owner\": \"{{userid}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -223,6 +315,19 @@
 		},
 		{
 			"name": "Check post after creating",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -231,7 +336,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"text\": \"text\",\r\n\"image\": \"https://randomuser.me/api/portraits/med/women/89.jpg\",\r\n\"likes\": 777,\r\n\"tags\": \"iliketesting\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -239,7 +344,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/post/635915083ffeb462004a866f",
+					"raw": "https://dummyapi.io/data/v1/post/{{postID}}",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -249,7 +354,7 @@
 						"data",
 						"v1",
 						"post",
-						"635915083ffeb462004a866f"
+						"{{postID}}"
 					]
 				}
 			},
@@ -257,6 +362,19 @@
 		},
 		{
 			"name": "Check posts list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -291,12 +409,27 @@
 		},
 		{
 			"name": "Create comment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"commentID\",jsonData.id)\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\",\r\n\"post\": \"635915083ffeb462004a866f\"\r\n}",
+					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"{{userid}}\",\r\n\"post\": \"{{postID}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -322,6 +455,19 @@
 		},
 		{
 			"name": "Check comment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -338,7 +484,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/user/63590fef3ffeb483f34a81a3/comment",
+					"raw": "https://dummyapi.io/data/v1/user/{{userid}}/comment",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -348,7 +494,7 @@
 						"data",
 						"v1",
 						"user",
-						"63590fef3ffeb483f34a81a3",
+						"{{userid}}",
 						"comment"
 					]
 				}
@@ -357,12 +503,25 @@
 		},
 		{
 			"name": "Delete comment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\",\r\n\"post\": \"635915083ffeb462004a866f\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -370,7 +529,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/comment/635917be3ffeb4536b4a8797",
+					"raw": "https://dummyapi.io/data/v1/comment/{{commentID}}",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -380,7 +539,7 @@
 						"data",
 						"v1",
 						"comment",
-						"635917be3ffeb4536b4a8797"
+						"{{commentID}}"
 					]
 				}
 			},
@@ -388,6 +547,19 @@
 		},
 		{
 			"name": "Check comment after delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -396,7 +568,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\",\r\n\"post\": \"635915083ffeb462004a866f\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -404,7 +576,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/user/63590fef3ffeb483f34a81a3/comment",
+					"raw": "https://dummyapi.io/data/v1/user/{{userid}}/comment",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -414,7 +586,7 @@
 						"data",
 						"v1",
 						"user",
-						"63590fef3ffeb483f34a81a3",
+						"{{userid}}",
 						"comment"
 					]
 				}
@@ -423,12 +595,25 @@
 		},
 		{
 			"name": "Delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\",\r\n\"post\": \"635915083ffeb462004a866f\"\r\n}",
+					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"{{userid}}\",\r\n\"post\": \"{{postID}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -436,7 +621,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/user/63590fef3ffeb483f34a81a3",
+					"raw": "https://dummyapi.io/data/v1/user/{{userid}}",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -446,7 +631,7 @@
 						"data",
 						"v1",
 						"user",
-						"63590fef3ffeb483f34a81a3"
+						"{{userid}}"
 					]
 				}
 			},
@@ -454,12 +639,28 @@
 		},
 		{
 			"name": "Check uset after removing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "DELETE",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"message\": \"Hello!\",\r\n\"owner\": \"63590fef3ffeb483f34a81a3\",\r\n\"post\": \"635915083ffeb462004a866f\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -467,7 +668,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://dummyapi.io/data/v1/user/63590fef3ffeb483f34a81a3",
+					"raw": "https://dummyapi.io/data/v1/user/{{userid}}",
 					"protocol": "https",
 					"host": [
 						"dummyapi",
@@ -477,7 +678,7 @@
 						"data",
 						"v1",
 						"user",
-						"63590fef3ffeb483f34a81a3"
+						"{{userid}}"
 					]
 				}
 			},
